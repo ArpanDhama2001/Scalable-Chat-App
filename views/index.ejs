@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room - <%= groupname %></title>
+    <link rel="stylesheet" href="/styles/index.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+    <h1>Chatting Inside "<%= groupname %>"</h1>
+
+    <div id="chat-container">
+        <div id="messages">
+            <% for (let i = 0; i < previousmsgs.length; i++) { %>
+                <div class="message <%= previousmsgs[i].sender === user ? 'self' : 'other' %>">
+                    <div class="sender"><%= previousmsgs[i].sender %></div>
+                    <%= previousmsgs[i].content %>
+                </div>
+            <% } %>
+        </div>
+
+        <div id="input-container">
+            <input type="text" id="chat_box" placeholder="Type a message..." />
+            <button id="send">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        const input = document.getElementById("chat_box");
+        const messages = document.getElementById("messages");
+        const sendBtn = document.getElementById("send");
+
+        const roomid = '<%= roomid %>';
+        const user = '<%= user %>';
+
+        socket.emit('join_room', { roomid });
+
+        sendBtn.addEventListener("click", sendMessage);
+        input.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") sendMessage();
+        });
+
+        function sendMessage() {
+            const msg = input.value.trim();
+            if (!msg) return;
+            socket.emit('new_msg', { message: msg, roomid, sender: user });
+            input.value = "";
+        }
+
+        socket.on('msg_rcvd', (data) => {
+            const msgDiv = document.createElement("div");
+            msgDiv.classList.add("message", data.sender === user ? "self" : "other");
+            msgDiv.innerHTML = `<div class="sender">${data.sender}</div> ${data.message}`;
+            messages.appendChild(msgDiv);
+            messages.scrollTop = messages.scrollHeight; // Auto-scroll
+        });
+    </script>
+</body>
+</html>
