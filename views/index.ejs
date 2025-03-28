@@ -11,19 +11,26 @@
 
     <h1>Chatting Inside "<%= groupname %>"</h1>
 
-    <div id="chat-container">
-        <div id="messages">
-            <% for (let i = 0; i < previousmsgs.length; i++) { %>
-                <div class="message <%= previousmsgs[i].sender === user ? 'self' : 'other' %>">
-                    <div class="sender"><%= previousmsgs[i].sender %></div>
-                    <%= previousmsgs[i].content %>
-                </div>
-            <% } %>
+    <div id="main-container">
+        <div id="sidebar">
+            <h3>Online Members:</h3>
+            <ul id="online_users"></ul>
         </div>
-
-        <div id="input-container">
-            <input type="text" id="chat_box" placeholder="Type a message..." />
-            <button id="send">Send</button>
+    
+        <div id="chat-container">
+            <div id="messages">
+                <% for (let i = 0; i < previousmsgs.length; i++) { %>
+                    <div class="message <%= previousmsgs[i].sender === user ? 'self' : 'other' %>">
+                        <div class="sender"><%= previousmsgs[i].sender %></div>
+                        <%= previousmsgs[i].content %>
+                    </div>
+                <% } %>
+            </div>
+    
+            <div id="input-container">
+                <input type="text" id="chat_box" placeholder="Type a message..." />
+                <button id="send">Send</button>
+            </div>
         </div>
     </div>
 
@@ -32,11 +39,15 @@
         const input = document.getElementById("chat_box");
         const messages = document.getElementById("messages");
         const sendBtn = document.getElementById("send");
+        let onlineUsersList = document.getElementById("online_users");
 
         const roomid = '<%= roomid %>';
         const user = '<%= user %>';
 
-        socket.emit('join_room', { roomid });
+        socket.emit('join_room', {
+            roomid: '<%= roomid %>',
+            username: '<%= user %>'
+        });
 
         sendBtn.addEventListener("click", sendMessage);
         input.addEventListener("keypress", function(event) {
@@ -56,6 +67,23 @@
             msgDiv.innerHTML = `<div class="sender">${data.sender}</div> ${data.message}`;
             messages.appendChild(msgDiv);
             messages.scrollTop = messages.scrollHeight; // Auto-scroll
+        });
+
+        // Update online users list
+        socket.on('update_online_users', (users) => {
+            onlineUsersList.innerHTML = "";
+            users
+                .filter(user => user && user.trim() !== "") // Filter out empty or invalid usernames
+                .forEach(user => {
+                    let li = document.createElement("li");
+                    li.textContent = user;
+                    onlineUsersList.appendChild(li);
+            });
+        });
+
+        // Notify when a user leaves
+        socket.on('user_left', (username) => {
+            console.log(username + " left the chat");
         });
     </script>
 </body>
