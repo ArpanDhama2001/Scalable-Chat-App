@@ -8,6 +8,18 @@
 </head>
 <body>
     <h1>Groups Chat</h1>
+    <!-- Form to Create a New Group -->
+    <form action="/group" method="POST" id="create-group-form">
+        <input type="text" name="name" placeholder="Enter group name" required>
+        <button type="submit">Create Group</button>
+    </form>
+
+    <!-- Separator -->
+    <div class="separator">
+        <hr>
+        <h2>Available Groups</h2>
+    </div>
+
     <ul>
         <% groups.forEach(group => { %>
             <li>
