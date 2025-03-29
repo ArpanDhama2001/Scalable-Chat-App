@@ -6,6 +6,10 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 const connect = require("./config/db-config");
 const path = require("path");
+const Redis = require("ioredis");
+
+const pub = new Redis();
+const sub = new Redis();
 
 const Group = require("./models/group");
 const Chat = require("./models/chat");
@@ -27,6 +31,17 @@ io.on("connection", (socket) => {
         const { roomid, username } = data;
         if (!username || username.trim() === "") return;
         socket.join(roomid);
+
+        // Subscribe to the Redis channel for this room
+        sub.subscribe(`room:${roomid}`, (err, count) => {
+            if (err) {
+                console.log(`Error while subscribing: ${err}`);
+            } else {
+                console.log(
+                    `Subscribed successfully! This client is currently subscribed to ${count} channels.`
+                );
+            }
+        });
 
         // Initialize room if not exists
         if (!onlineUsers[roomid]) {
@@ -63,35 +78,58 @@ io.on("connection", (socket) => {
 
             // Notify others that the user has left
             io.to(roomid).emit("user_left", username);
+
+            // Unsubscribe from the Redis channel if the room is empty
+            if (onlineUsers[roomid].size === 0) {
+                sub.unsubscribe(`room:${roomid}`);
+            }
         }
     });
 
     socket.on("new_msg", async (data) => {
         console.log("received new message", data);
+        const { roomid, sender, message } = data;
         try {
-            const chat = await Chat.create({
-                roomid: data.roomid,
-                sender: data.sender,
-                content: data.message,
-            });
-            io.to(data.roomid).emit("msg_rcvd", data);
+            // commenting the query for time being, will use it after seting up message broker like Kafka
+            // const chat = await Chat.create({
+            //     roomid: roomid,
+            //     sender: sender,
+            //     content: message,
+            // });
+
+            // io.to(roomid).emit("msg_rcvd", data);
+
+            // Publish the message to the Redis channel
+            pub.publish(`room:${roomid}`, JSON.stringify(data));
         } catch (error) {
             console.log(error);
         }
     });
 });
 
+sub.on("message", (channel, message) => {
+    const roomid = channel.split(":")[1]; // Extract room ID from the channel name
+    const data = JSON.parse(message);
+
+    // Broadcast the message to all clients in the room
+    io.to(roomid).emit("msg_rcvd", data);
+});
+
 app.get("/chat/:roomid/:user", async (req, res) => {
     try {
         const group = await Group.findById(req.params.roomid);
+
+        // commenting the query for time being, will use it after seting up message broker like Kafka
         const chats = await Chat.find({
             roomid: req.params.roomid,
         });
+
         res.render("index", {
             roomid: req.params.roomid,
             user: req.params.user,
             groupname: group.name,
-            previousmsgs: chats,
+            // previousmsgs: chats,
+            previousmsgs: {},
         });
     } catch (error) {
         console.log(error);
