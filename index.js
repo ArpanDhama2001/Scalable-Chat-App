@@ -4,10 +4,8 @@ const path = require("path");
 const { Server } = require("socket.io");
 const connect = require("./config/db-config");
 const { pub, sub } = require("./redis/redisClient");
-const groupRoutes = require("./routes/groupRoutes");
-const chatRoutes = require("./routes/chatRoutes");
-const joinRoutes = require("./routes/joinRoutes");
 const socketHandlers = require("./sockets/socketHandlers");
+const { chatRoutes, groupRoutes, joinRoutes } = require("./routes");
 
 const app = express();
 const server = http.createServer(app);
