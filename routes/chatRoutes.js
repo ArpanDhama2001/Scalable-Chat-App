@@ -8,13 +8,12 @@ router.get("/:roomid", async (req, res) => {
     const { user } = req.query; // Get the username from the query string
     try {
         const group = await Group.findById(roomid);
-        // const chats = await Chat.find({ roomid });
+        const chats = await Chat.find({ roomid });
         res.render("index", {
             roomid,
             user,
             groupname: group.name,
-            // previousmsgs: chats,
-            previousmsgs: {},
+            previousmsgs: chats,
         });
     } catch (error) {
         console.log(error);

@@ -69,6 +69,14 @@
             messages.scrollTop = messages.scrollHeight; // Auto-scroll
         });
 
+        // Scroll to the last message when the page loads
+        window.onload = () => {
+            messages.scrollTo({
+                top: messages.scrollHeight,
+                behavior: "smooth",
+            });
+        }
+
         // Update online users list
         socket.on('update_online_users', (users) => {
             onlineUsersList.innerHTML = "";

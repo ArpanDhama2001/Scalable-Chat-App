@@ -1,10 +1,13 @@
 const { pub, sub } = require("../redis/redisClient");
+const { produceMessage, consumeMessage } = require("../kafka/kafka");
 
 const onlineUsers = {}; // Store online users per group
 
 module.exports = (io) => {
     io.on("connection", (socket) => {
         console.log("A user connected:", socket.id);
+
+        consumeMessage();
 
         socket.on("join_room", (data) => {
             const { roomid, username } = data;
@@ -45,9 +48,6 @@ module.exports = (io) => {
 
         socket.on("new_msg", async (data) => {
             const { roomid, sender, message } = data;
-            console.log(
-                `New message from ${sender} in room ${roomid}: ${message}`
-            );
 
             try {
                 // Publish the message to the Redis channel
@@ -94,13 +94,17 @@ module.exports = (io) => {
     });
 
     // Redis Subscriber: Handle incoming messages from Redis
-    sub.on("message", (channel, message) => {
+    sub.on("message", async (channel, message) => {
         const roomid = channel.split(":")[1]; // Extract room ID from the channel name
         const data = JSON.parse(message);
 
-        console.log(`Message received from Redis for room ${roomid}:`, data);
-
         // Broadcast the message to all clients in the room
         io.to(roomid).emit("msg_rcvd", data);
+        try {
+            await produceMessage(data);
+        } catch (error) {
+            console.log("Produce Message error:", error);
+        }
+        console.log("message produced to Kafka...");
     });
 };
