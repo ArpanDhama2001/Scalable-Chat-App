@@ -1,71 +1,74 @@
-# 🎥 Adaptive Video Streaming App
+# 💬 Scalable Chat App
 
-A backend-driven adaptive bitrate streaming platform built using Node.js, Express, FFmpeg, and HLS. This project enables smooth video playback across varying network conditions using HTTP Live Streaming (HLS).
+A real-time group-based chat application built using Socket.IO and Node.js, featuring JWT authentication, group creation with passcodes, and persistent messaging via MongoDB.
 
 ---
 
 ## 📖 Overview
 
-This project simulates a production-grade adaptive video streaming platform. Users can upload `.mp4` videos, which are then transcoded to multiple resolutions using **FFmpeg**, segmented into `.ts` chunks, and delivered to the client using **HLS** (`.m3u8` playlists). The video automatically adapts to network speed, providing the best viewing experience.
+This application allows users to register, log in, create chat groups with secure passcodes, and communicate in real time within those groups. It showcases modular design, token-based authentication, and WebSocket communication using Socket.IO. All chat messages are stored in MongoDB for future retrieval.
 
-This project demonstrates backend skills including file handling, media processing, asynchronous operations, streaming architecture, and integration with MongoDB.
-
----
-
-## 🚀 Key Features
-
-- 🎬 Upload `.mp4` videos via frontend interface
-- ⚙️ Backend triggers FFmpeg to transcode to 1080p, 720p, and 480p
-- 📡 Segment videos into `.ts` files with `.m3u8` playlists (HLS)
-- 📦 Serve videos for adaptive playback via HTML5 `<video>` player
-- 🧱 MongoDB for metadata storage and request handling
-- 🧰 Clean and modular code using Express.js
+The project is designed to demonstrate strong backend engineering skills in building scalable, secure, and real-time systems.
 
 ---
 
-## 🛠️ Tech Stack
+## ✨ Key Features
 
-| Layer       | Tech                                             |
-|-------------|--------------------------------------------------|
-| Backend     | Node.js, Express.js                              |
-| Media Tools | FFmpeg                                           |
-| Streaming   | HLS (HTTP Live Streaming)                        |
-| File Upload | Multer                                           |
-| Database    | MongoDB (via Mongoose)                           |
-| Frontend    | Next.js, HTML5 Video Player, JavaScript          |
-| Dev Tools   | Nodemon, Postman                                 |
+- 🔒 **JWT Authentication** — Secure login and registration with access and refresh tokens.
+- 🧠 **Group Chat with Passcodes** — Users can create and join groups using passcodes.
+- 💬 **Real-Time Messaging** — Live chat functionality powered by Socket.IO.
+- 🗃️ **Message Persistence** — Chats are stored in MongoDB with group-level separation.
+- 🔄 **Token Refresh Logic** — Automatically issues new access tokens when the refresh token is valid.
+- 📦 **Modular Codebase** — Organized into clearly separated routes, middleware, and services.
+
+---
+
+## 🛠 Tech Stack
+
+| Layer        | Technology                  |
+|--------------|------------------------------|
+| Backend      | Node.js, Express.js          |
+| Real-Time    | Socket.IO                    |
+| Database     | MongoDB, Mongoose            |
+| Auth         | JWT, bcrypt                  |
+| Frontend     | HTML, CSS, JavaScript        |
+| Tools        | Postman, Nodemon             |
 
 ---
 
 ## ⚙️ Setup Instructions
 
-### 🔹 Prerequisites
-- [Node.js](https://nodejs.org/)
-- [FFmpeg](https://ffmpeg.org/)
-- [MongoDB](https://www.mongodb.com/)
-
-### 🔹 1. Clone the Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/ArpanDhama2001/Scalable-Chat-App.git
 cd Scalable-Chat-App
-```
+````
 
-### 🔹 Install Dependencies
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 🔹 3. Configure Environment Variables
+### 3. Create a `.env` file
 
-```bash
-MONGO_URI=your_mongodb_connection_string
+Create a `.env` file in the root folder and add the following:
+
+```env
 PORT=5000
+ACCESS_TOKEN_SECRET=youraccesstokensecret
+REFRESH_TOKEN_SECRET=yourrefreshtokensecret
+MONGO_URL=mongodb://localhost:27017/chatapp
 ```
 
-### 🔹 4. Start the Server
+> Replace `youraccesstokensecret` and `yourrefreshtokensecret` with secure strings.
+
+### 4. Start the server
 
 ```bash
-npm run dev
+npm start
 ```
+
+The server will be running on `http://localhost:5000`.
+
