@@ -54,9 +54,7 @@ A real-time, horizontally scalable chat application built using **Node.js**, **S
 ### Prerequisites
 
 - Node.js & npm
-- Redis server running
-- Kafka broker running on port `9092`
-- MongoDB running locally or via cloud (e.g., Atlas)
+- Docker
 
 ### Install Dependencies
 
@@ -64,15 +62,25 @@ A real-time, horizontally scalable chat application built using **Node.js**, **S
 npm install
 ````
 
-### Run the App
+### Create .env file
 
 ```bash
-node index.js
+cp .env.example .env
+```
+- then edit the variables as required
+
+### Run Docker containers
+```bash
+docker compose up -d
+```
+### Run the app
+```bash
+npm run dev
 ```
 
 ### Access the App
 
-Open your browser and visit: [http://localhost:3001](http://localhost:3001)
+Open your browser and visit: [http://localhost:3001/groups](http://localhost:3001/groups)
 
 
 ## Design Highlights
